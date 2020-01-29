@@ -1,5 +1,7 @@
 # Graylog Content Pack User Agent extractor
 
+[Graylog Marketplace Entry](https://marketplace.graylog.org/addons/e91224c3-066d-4e32-b922-d18aa6cfb9a2)
+
 - Parses the http user agent via a remote API (http://useragentstring.com) and fills fields, like OS, Language, Browser Version
 - the included pipeline rule expects a message attribute called "user_agent" to extract from
 
