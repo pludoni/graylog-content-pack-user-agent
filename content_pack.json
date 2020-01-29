@@ -1,0 +1,193 @@
+{
+  "v": 1,
+  "id": "f56f4b4e-4052-4d18-97ba-cd2ed4c5e9b3",
+  "rev": 1,
+  "name": "User Agent Lookup/Extractor",
+  "summary": "Extract user agent details from a field user_agent",
+  "description": "Extract user agent details from a field user_agent.\n\nUses free http://useragentstring.com.",
+  "vendor": "pludoni GmbH",
+  "url": "",
+  "parameters": [],
+  "entities": [
+    {
+      "v": "1",
+      "type": {
+        "name": "lookup_adapter",
+        "version": "1"
+      },
+      "id": "f08f4ba7-5ba5-46d2-9b86-56cee842d2f4",
+      "data": {
+        "name": {
+          "@type": "string",
+          "@value": "user-agent-parser"
+        },
+        "title": {
+          "@type": "string",
+          "@value": "User Agent Parser"
+        },
+        "description": {
+          "@type": "string",
+          "@value": ""
+        },
+        "configuration": {
+          "type": {
+            "@type": "string",
+            "@value": "httpjsonpath"
+          },
+          "url": {
+            "@type": "string",
+            "@value": "http://useragentstring.com/?uas=${key}&getJSON=all"
+          },
+          "single_value_jsonpath": {
+            "@type": "string",
+            "@value": "$.agent_name"
+          },
+          "multi_value_jsonpath": {
+            "@type": "string",
+            "@value": "$"
+          },
+          "user_agent": {
+            "@type": "string",
+            "@value": "Graylog Lookup - https://www.graylog.org/"
+          }
+        }
+      },
+      "constraints": [
+        {
+          "type": "server-version",
+          "version": ">=3.1.4+1149fe1"
+        }
+      ]
+    },
+    {
+      "v": "1",
+      "type": {
+        "name": "lookup_table",
+        "version": "1"
+      },
+      "id": "31189339-cb2e-4dc9-9f49-7d849691d026",
+      "data": {
+        "default_single_value_type": {
+          "@type": "string",
+          "@value": "NULL"
+        },
+        "cache_name": {
+          "@type": "string",
+          "@value": "dcc5ce61-7fac-4edf-a71f-2380555369ae"
+        },
+        "name": {
+          "@type": "string",
+          "@value": "user_agent_lookup"
+        },
+        "default_multi_value_type": {
+          "@type": "string",
+          "@value": "NULL"
+        },
+        "default_multi_value": {
+          "@type": "string",
+          "@value": ""
+        },
+        "data_adapter_name": {
+          "@type": "string",
+          "@value": "f08f4ba7-5ba5-46d2-9b86-56cee842d2f4"
+        },
+        "title": {
+          "@type": "string",
+          "@value": "User Agent Lookup"
+        },
+        "default_single_value": {
+          "@type": "string",
+          "@value": ""
+        },
+        "description": {
+          "@type": "string",
+          "@value": "User Agent lookup"
+        }
+      },
+      "constraints": [
+        {
+          "type": "server-version",
+          "version": ">=3.1.4+1149fe1"
+        }
+      ]
+    },
+    {
+      "v": "1",
+      "type": {
+        "name": "pipeline_rule",
+        "version": "1"
+      },
+      "id": "f53913e4-b588-44d8-872a-fe482846a525",
+      "data": {
+        "title": {
+          "@type": "string",
+          "@value": "lookup user_agent"
+        },
+        "description": {
+          "@type": "string",
+          "@value": "Lookup User Agent details"
+        },
+        "source": {
+          "@type": "string",
+          "@value": "rule \"lookup user_agent\"\nwhen has_field(\"user_agent\")\nthen\n  let ua = to_string($message.user_agent);\n  let info = lookup(\"user_agent_lookup\", ua);\n\n  let name = concat(\n    concat(to_string(info[\"agent_name\"]), \" \"),\n    to_string(info[\"agent_version\"])\n  );\n  let os = concat(\n    concat(to_string(info[\"os_name\"]), \" \"),\n    to_string(info[\"os_versionNumber\"])\n  );\n  set_field(\"user_agent_name\", name);\n  set_field(\"user_agent_os\", os);\n  set_field(\"user_agent_language\", info[\"agent_languageTag\"]);\n\n  // agent_type \"Browser\"\n  set_field(\"user_agent__agent_type\", info[\"agent_type\"]);\n  // agent_name \"Firefox\"\n  set_field(\"user_agent__agent_name\", info[\"agent_name\"]);\n  // agent_version      \"72.0\"\n  set_field(\"user_agent__agent_version\", info[\"agent_version\"]);\n  // os_type    \"Macintosh\"\n  set_field(\"user_agent__os_type\", info[\"os_type\"]);\n  // os_name    \"OS X\"\n  set_field(\"user_agent__os_name\", info[\"os_name\"]);\n  // os_versionName     \"\"\n  set_field(\"user_agent__os_versionName\", info[\"os_versionName\"]);\n  // os_versionNumber   \"10.15\"\n  set_field(\"user_agent__os_versionNumber\", info[\"os_versionNumber\"]);\n  // os_producer        \"\"\n  set_field(\"user_agent__os_producer\", info[\"os_producer\"]);\n  // os_producerURL     \"\"\n  set_field(\"user_agent__os_producerURL\", info[\"os_producerURL\"]);\n  // linux_distibution  \"Null\"\n  set_field(\"user_agent__os_linux\", info[\"linux_distibution\"]);\n  // agent_language     \"\"\n  // set_field(\"user_agent__os_language\", info[\"agent_language\"]);\n  // // agent_languageTag       \"\"\n  // set_field(\"user_agent__os_languageTag\", info[\"agent_languageTag\"]);\nend"
+        }
+      },
+      "constraints": [
+        {
+          "type": "server-version",
+          "version": ">=3.1.4+1149fe1"
+        }
+      ]
+    },
+    {
+      "v": "1",
+      "type": {
+        "name": "lookup_cache",
+        "version": "1"
+      },
+      "id": "dcc5ce61-7fac-4edf-a71f-2380555369ae",
+      "data": {
+        "name": {
+          "@type": "string",
+          "@value": "useragent-cacher"
+        },
+        "title": {
+          "@type": "string",
+          "@value": "UserAgent Cacher"
+        },
+        "description": {
+          "@type": "string",
+          "@value": ""
+        },
+        "configuration": {
+          "type": {
+            "@type": "string",
+            "@value": "guava_cache"
+          },
+          "max_size": {
+            "@type": "integer",
+            "@value": 10000
+          },
+          "expire_after_access": {
+            "@type": "long",
+            "@value": 1
+          },
+          "expire_after_access_unit": {
+            "@type": "string",
+            "@value": "HOURS"
+          },
+          "expire_after_write": {
+            "@type": "long",
+            "@value": 0
+          }
+        }
+      },
+      "constraints": [
+        {
+          "type": "server-version",
+          "version": ">=3.1.4+1149fe1"
+        }
+      ]
+    }
+  ]
+}
